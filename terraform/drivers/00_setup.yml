@@ -1,0 +1,12 @@
+- hosts: localhost
+  vars_files:
+    - "{{ var_file }}"
+  tasks:
+  
+  - name: 00_setup Terraform
+    terraform:
+      project_path: "./00_setup"
+      force_init: yes
+      state: "{{ state }}"
+      variables_file: "config.tfvars"
+    when: skip_setup_terraform is not defined and skip_all_terraform is not defined

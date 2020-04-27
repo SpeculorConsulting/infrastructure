@@ -1,0 +1,12 @@
+---
+env_vars:
+  region: "us-west-2"
+  bucket: "speculor-terraform-bucket"
+  table: "speculor-terraform-table"
+  iam_state: "iam/terraform.tfstate"
+  vpc_state: "vpc/terraform.tfstate"
+  route53_state: "route53/terraform.tfstate"
+  bastion_state: "bastion/terraform.tfstate"
+  routing_state: "routing/terraform.tfstate"
+  web_state: "web/terraform.tfstate"
+  alb_state: "alb/terraform.tfstate"
