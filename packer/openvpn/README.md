@@ -1,4 +1,5 @@
 # Credential creation using easy-rsa
+```bash
 curl -O https://github.com/OpenVPN/easy-rsa/releases/download/v3.0.7/EasyRSA-3.0.7.tgz
 tar -zxvf EasyRSA-3.0.7.tgz
 cd EasyRSA-3.0.7
@@ -10,9 +11,10 @@ cd EasyRSA-3.0.7
 ./easyrsa sign-req client client01
 ./easyrsa gen-dh
 
-# Created artifacts
+# Artifacts Created:
 ./pki/ca.crt
 ./pki/issued/speculor-server.crt
 ./pki/private/speculor-server.key
 ./pki/issued/client01.crt
 ./pki/private/client01.key
+```
