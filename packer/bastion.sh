@@ -8,6 +8,7 @@ fi
 amazon-linux-extras install epel -y
 yum install openvpn -y
 cp /var/packer_temp/*server* /var/packer_temp/ca* /var/packer_temp/dh.pem /etc/openvpn/server
+cp /var/packer_temp/*client* /var/packer_temp/ca* /var/packer_temp/dh.pem /etc/openvpn/client
 rm -rf /var/packer_temp/*
 
 cat <<EOF >> /etc/systemd/system/openvpn.service
