@@ -13,6 +13,7 @@ cd EasyRSA-3.0.7
 
 # Artifacts Created:
 ./pki/ca.crt
+./pki/dh.pem
 ./pki/issued/speculor-server.crt
 ./pki/private/speculor-server.key
 ./pki/issued/client01.crt
