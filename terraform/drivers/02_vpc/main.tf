@@ -54,6 +54,7 @@ module "vpc" {
     Owner       = "Speculor Consulting"
     Environment = "Production"
     Name        = "Speculor Consulting VPC"
+    Role        = "speculor-consulting-vpc"
   }
 
   vpc_endpoint_tags = {

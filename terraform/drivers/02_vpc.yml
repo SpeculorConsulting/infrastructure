@@ -12,6 +12,6 @@
       backend_config:
         region: "{{ env_vars.region }}"
         bucket: "{{ env_vars.bucket }}"
-        dynamodb_table: "{{ env_vars.table}}"
-        key: "{{ env_vars.vpc_state}}"
+        dynamodb_table: "{{ env_vars.table }}"
+        key: "{{ env_vars.vpc_state }}"
     when: skip_vpc_terraform is not defined and skip_all_terraform is not defined
