@@ -22,10 +22,10 @@ module "vpc" {
 
   cidr = "172.1.1.0/24"
 
-  azs                 = ["us-west-2a", "us-west-2b", "us-west-2c"]
-  private_subnets     = ["172.1.1.0/28", "172.1.1.16/28", "172.1.1.32/28"]
-  public_subnets      = ["172.1.1.48/28", "172.1.1.64/28", "172.1.1.80/28"]
-  database_subnets    = ["172.1.1.96/28", "172.1.1.112/28", "172.1.1.128/28"]
+  azs              = ["us-west-2a", "us-west-2b", "us-west-2c"]
+  private_subnets  = ["172.1.1.0/28", "172.1.1.16/28", "172.1.1.32/28"]
+  public_subnets   = ["172.1.1.48/28", "172.1.1.64/28", "172.1.1.80/28"]
+  database_subnets = ["172.1.1.96/28", "172.1.1.112/28", "172.1.1.128/28"]
 
   create_database_subnet_group = false
 
@@ -37,8 +37,8 @@ module "vpc" {
 
   enable_vpn_gateway = true
 
-  enable_dhcp_options              = true
-  dhcp_options_domain_name         = "speculorconsulting.com"
+  enable_dhcp_options      = true
+  dhcp_options_domain_name = "speculorconsulting.com"
 
   # VPC Endpoint for EC2
   enable_ec2_endpoint              = true
