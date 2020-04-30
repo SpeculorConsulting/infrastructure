@@ -54,7 +54,7 @@ variable "cidrs" {
 
 variable "is_lb_private" {
   description = "If TRUE the load balancer scheme will be \"internal\" else \"internet-facing\""
-  default     = "False"
+  default     = "false"
 }
 
 variable "bastion_host_key_pair" {
@@ -74,16 +74,16 @@ variable "bastion_record_name" {
 
 variable "bastion_launch_template_name" {
   description = "Bastion Launch template Name, will also be used for the ASG"
-  default     = "speculor-consulting-bastion"
+  default     = "speculor-bastion"
 }
 
-variable "elb_subnets" {
+variable "public_subnet_filter" {
   type        = list(string)
   description = "List of public subnets were the ELB will be deployed"
   default     = ["172.1.1.48/28", "172.1.1.64/28", "172.1.1.80/28"]
 }
 
-variable "auto_scaling_group_subnets" {
+variable "private_subnet_filter" {
   type        = list(string)
   description = "List of private subnets were the Auto Scalling Group will deploy the instances"
   default     = ["172.1.1.0/28", "172.1.1.16/28", "172.1.1.32/28"]

@@ -11,8 +11,24 @@ terraform {
 
 data "aws_vpc" "speculor-vpc" {
   filter {
-    name   = "tag:role"
+    name   = "tag:Role"
     values = var.vpc_filter
+  }
+}
+
+data "aws_subnet_ids" "public_subnet_ids" {
+  vpc_id = data.aws_vpc.speculor-vpc.id
+  filter {
+    name   = "cidr-block"
+    values = var.public_subnet_filter
+  }
+}
+
+data "aws_subnet_ids" "private_subnet_ids" {
+  vpc_id = data.aws_vpc.speculor-vpc.id
+  filter {
+    name   = "cidr-block"
+    values = var.private_subnet_filter
   }
 }
 
@@ -22,7 +38,7 @@ data "aws_caller_identity" "current" {
 data "aws_ami" "bastion_ami" {
   most_recent = true
   filter {
-    name   = "tag:role"
+    name   = "tag:Role"
     values = var.ami_filter
   }
   owners = [data.aws_caller_identity.current.account_id]
@@ -34,6 +50,8 @@ module "bastion" {
 
   vpc_id                       = data.aws_vpc.speculor-vpc.id
   bastion_ami                  = data.aws_ami.bastion_ami.id
+  elb_subnets                  = data.aws_subnet_ids.public_subnet_ids.ids
+  auto_scaling_group_subnets   = data.aws_subnet_ids.private_subnet_ids.ids
 
   bucket_name                  = var.bucket_name
   bucket_versioning            = var.bucket_versioning
@@ -46,8 +64,6 @@ module "bastion" {
   hosted_zone_id               = var.hosted_zone_id
   bastion_record_name          = var.bastion_record_name
   bastion_launch_template_name = var.bastion_launch_template_name
-  elb_subnets                  = var.elb_subnets
-  auto_scaling_group_subnets   = var.auto_scaling_group_subnets
   associate_public_ip_address  = var.associate_public_ip_address
   bastion_instance_count       = var.bastion_instance_count
   create_dns_record            = var.create_dns_record
