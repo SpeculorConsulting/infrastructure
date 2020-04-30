@@ -28,7 +28,7 @@ variable "bucket_force_destroy" {
 variable "tags" {
   description = "A mapping of tags to assign"
   default = {
-    Name        = "Speculor Consulting State Bucket"
+    Name        = "Speculor Consulting Bastion Host"
     Owner       = "Speculor Consulting"
     Department  = "Engineering"
     Project     = "Infrastructure"
