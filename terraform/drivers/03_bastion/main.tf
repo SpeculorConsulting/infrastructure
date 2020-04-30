@@ -44,6 +44,10 @@ data "aws_ami" "bastion_ami" {
   owners = [data.aws_caller_identity.current.account_id]
 }
 
+data "aws_route53_zone" "public_zone" {
+  name = var.hosted_zone_id
+}
+
 module "bastion" {
   source  = "Guimove/bastion/aws"
   version = "1.2.1"
@@ -52,6 +56,7 @@ module "bastion" {
   bastion_ami                  = data.aws_ami.bastion_ami.id
   elb_subnets                  = data.aws_subnet_ids.public_subnet_ids.ids
   auto_scaling_group_subnets   = data.aws_subnet_ids.private_subnet_ids.ids
+  hosted_zone_id               = data.aws_route53_zone.public_zone.id
 
   bucket_name                  = var.bucket_name
   bucket_versioning            = var.bucket_versioning
@@ -61,7 +66,6 @@ module "bastion" {
   cidrs                        = var.cidrs
   is_lb_private                = var.is_lb_private
   bastion_host_key_pair        = var.bastion_host_key_pair
-  hosted_zone_id               = var.hosted_zone_id
   bastion_record_name          = var.bastion_record_name
   bastion_launch_template_name = var.bastion_launch_template_name
   associate_public_ip_address  = var.associate_public_ip_address
