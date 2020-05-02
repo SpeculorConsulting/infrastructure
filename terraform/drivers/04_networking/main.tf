@@ -64,3 +64,16 @@ resource "aws_route" "vpn1_route" {
   destination_cidr_block = var.bastion_vpn1_cidr
   instance_id            = data.aws_instances.bastion_instances.ids[1]
 }
+
+resource "null_resource" "disable_source_dest_check0" {
+  provisioner "local-exec" {
+    command = "aws ec2 modify-instance-attribute --no-source-dest-check --instance-id ${data.aws_instances.bastion_instances.ids[0]}  --region ${var.region}"
+  }
+}
+
+resource "null_resource" "disable_source_dest_check1" {
+  provisioner "local-exec" {
+    command = "aws ec2 modify-instance-attribute --no-source-dest-check --instance-id ${data.aws_instances.bastion_instances.ids[1]}  --region ${var.region}"
+  }
+}
+

@@ -1,3 +1,8 @@
+variable "region" {
+  description = "Filters VPCs based of of the Role tag"
+  default     = "us-west-2"
+}
+
 variable "vpc_filter" {
   description = "Filters VPCs based of of the Role tag"
   type        = list(string)
