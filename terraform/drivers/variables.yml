@@ -7,6 +7,6 @@ env_vars:
   vpc_state: "vpc/terraform.tfstate"
   route53_state: "route53/terraform.tfstate"
   bastion_state: "bastion/terraform.tfstate"
-  routing_state: "routing/terraform.tfstate"
+  networking_state: "networking/terraform.tfstate"
   web_state: "web/terraform.tfstate"
   alb_state: "alb/terraform.tfstate"

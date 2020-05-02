@@ -1,0 +1,17 @@
+- hosts: localhost
+  vars_files:
+    - "{{ var_file }}"
+  tasks:
+  
+  - name: 04_networking Terraform
+    terraform:
+      project_path: "./04_networking"
+      force_init: yes
+      state: "{{ state }}"
+      variables_file: "config.tfvars"
+      backend_config:
+        region: "{{ env_vars.region }}"
+        bucket: "{{ env_vars.bucket }}"
+        dynamodb_table: "{{ env_vars.table }}"
+        key: "{{ env_vars.networking_state }}"
+    when: skip_networking_terraform is not defined and skip_all_terraform is not defined
