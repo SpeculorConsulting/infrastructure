@@ -19,7 +19,7 @@ variable "bastion_sg_filter" {
 variable "nginx_subnet_filter" {
   type        = list(string)
   description = "List of private subnets were the nginx servers will be deployed"
-  default     = ["172.1.1.0/28", "172.1.1.16/28", "172.1.1.32/28"]
+  default     = ["172.1.1.0/28", "172.1.1.16/28"]
 }
 
 variable "vol_size" {

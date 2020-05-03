@@ -10,7 +10,7 @@ terraform {
 
 data "aws_vpc" "speculor-vpc" {
   filter {
-    name   = "tag:role"
+    name   = "tag:Role"
     values = var.vpc_filter
   }
 }
@@ -32,8 +32,8 @@ data "aws_caller_identity" "current" {
 data "aws_ami" "nginx_ami" {
   most_recent = true
   filter {
-    name   = "tag:role"
-    values = var.nginx_ami_filter
+    name   = "tag:Role"
+    values = var.ami_filter
   }
   owners = [data.aws_caller_identity.current.account_id]
 }
@@ -41,7 +41,7 @@ data "aws_ami" "nginx_ami" {
 data "aws_subnet_ids" "nginx_subnet_ids" {
   vpc_id = data.aws_vpc.speculor-vpc.id
   filter {
-    name   = "tag:Name"
+    name   = "cidr-block"
     values = var.nginx_subnet_filter
   }
 }
@@ -103,7 +103,6 @@ resource "aws_instance" "nginx" {
   }
 
   vpc_security_group_ids = [
-    data.aws_security_group.base_sg.id,
     data.aws_security_group.bastion_sg.id,
     aws_security_group.nginx_sg.id
   ]

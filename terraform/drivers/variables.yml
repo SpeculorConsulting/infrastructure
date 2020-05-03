@@ -8,5 +8,5 @@ env_vars:
   route53_state: "route53/terraform.tfstate"
   bastion_state: "bastion/terraform.tfstate"
   networking_state: "networking/terraform.tfstate"
-  web_state: "web/terraform.tfstate"
+  nginx_state: "nginx/terraform.tfstate"
   alb_state: "alb/terraform.tfstate"

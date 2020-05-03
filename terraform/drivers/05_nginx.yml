@@ -1,0 +1,17 @@
+- hosts: localhost
+  vars_files:
+    - "{{ var_file }}"
+  tasks:
+  
+  - name: 05_nginx Terraform
+    terraform:
+      project_path: "./05_nginx"
+      force_init: yes
+      state: "{{ state }}"
+      variables_file: "config.tfvars"
+      backend_config:
+        region: "{{ env_vars.region }}"
+        bucket: "{{ env_vars.bucket }}"
+        dynamodb_table: "{{ env_vars.table }}"
+        key: "{{ env_vars.nginx_state }}"
+    when: skip_nginx_terraform is not defined and skip_all_terraform is not defined
