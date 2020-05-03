@@ -43,7 +43,7 @@ variable "name" {
 
 variable "domain" {
   description = "Route53 domain"
-  default     = "*.speculorconsulting.com"
+  default     = "speculorconsulting.com"
 }
 
 variable "health_check_path" {
