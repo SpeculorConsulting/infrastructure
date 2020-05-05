@@ -1,0 +1,28 @@
+- hosts: localhost
+  vars_files:
+    - "{{ var_file }}"
+  tasks:
+  
+  - name: Bastion Terraform Refresh
+    shell: 'terraform refresh'
+    args:
+      chdir: "../03_bastion"
+    register: bastion_output
+    when: skip_openvpn_connection is not defined
+
+  - name: Bastion Terraform Output
+    shell: 'terraform output | grep bastion_load_balancer_ip | cut -d "\"" -f 4'
+    args:
+      chdir: "../03_bastion"
+    register: bastion_output
+    when: skip_openvpn_connection is not defined
+
+  - name: Evaluate Connection Status
+    shell: pgrep openvpn
+    register: connection_status
+
+  - name: Connect to OpenVPN Server
+    shell: |
+      {{ env_vars.openvpn_bin }} --config client01.ovpn --remote {{ bastion_output.stdout_lines[0] }} --port 1194 --daemon
+    when: skip_openvpn_connection is not defined and connection_status.rc != 0
+    become: yes

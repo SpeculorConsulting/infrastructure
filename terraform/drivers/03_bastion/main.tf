@@ -80,3 +80,7 @@ module "bastion" {
   extra_user_data_content      = var.extra_user_data_content
   allow_ssh_commands           = var.allow_ssh_commands
 }
+
+output "bastion_load_balancer_ip" {
+  value = module.bastion.elb_ip
+}
