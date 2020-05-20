@@ -1,0 +1,47 @@
+{
+  "variables": {
+    "aws_access_key": "",
+    "aws_secret_key": ""
+  },
+  "builders": [{
+    "type": "amazon-ebs",
+    "access_key": "{{user `aws_access_key`}}",
+    "secret_key": "{{user `aws_secret_key`}}",
+    "region": "us-west-2",
+    "ssh_username": "ec2-user",
+    "source_ami_filter": {
+      "filters": {
+        "virtualization-type": "hvm",
+        "name": "amzn2-ami-hvm-2.0.????????.?-x86_64-gp2",
+        "root-device-type": "ebs"
+      },
+      "owners": ["amazon"],
+      "most_recent": true
+    },
+    "instance_type": "t2.micro",
+    "ami_name": "speculor-consulting-mongo-{{timestamp}}",
+    "tags": {
+      "Packer": "true",
+      "Name": "Speculor Consulting Mongo",
+      "Owner": "Speculor Consulting",
+      "Department": "engineering",
+      "Project": "infrastructure",
+      "Environment": "production",
+      "Role": "speculor-consulting-mongo"
+
+    }
+  }],
+  "provisioners": [{
+    "type": "shell",
+    "inline": "sudo mkdir /var/packer_temp; sudo chown ec2-user:ec2-user /var/packer_temp"
+  },
+  {
+    "type": "file",
+    "source": "./mongo/",
+    "destination": "/var/packer_temp"
+  },
+  {
+    "type": "shell",
+    "script": "./mongo.sh"
+  }]
+}
