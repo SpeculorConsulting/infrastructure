@@ -10,7 +10,7 @@ terraform {
 
 data "aws_vpc" "speculor-consulting-vpc" {
   filter {
-    name   = "tag:role"
+    name   = "tag:Role"
     values = var.vpc_filter
   }
 }
@@ -43,8 +43,8 @@ data "aws_caller_identity" "current" {
 data "aws_ami" "mongo_ami" {
   most_recent = true
   filter {
-    name   = "tag:role"
-    values = var.mongo_ami_filter
+    name   = "tag:Role"
+    values = var.ami_filter
   }
   owners = [data.aws_caller_identity.current.account_id]
 }
@@ -52,7 +52,7 @@ data "aws_ami" "mongo_ami" {
 data "aws_subnet_ids" "mongo_subnet_ids" {
   vpc_id = data.aws_vpc.speculor-consulting-vpc.id
   filter {
-    name   = "tag:Name"
+    name   = "cidr-block"
     values = var.mongo_subnet_filter
   }
 }
@@ -118,10 +118,10 @@ resource "aws_instance" "mongo" {
     Name        = format("speculor-consulting-mongo-%s", each.value)
     Terraform   = "true"
     Owner       = "Speculor Consulting"
-    department  = "Engineering"
-    project     = "infrastructure"
-    environment = "production"
-    role        = "speculor-consulting-mongo"
+    Department  = "Engineering"
+    Project     = "infrastructure"
+    Environment = "production"
+    Role        = "speculor-consulting-mongo"
   }
 }
 
