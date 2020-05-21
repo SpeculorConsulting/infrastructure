@@ -10,5 +10,5 @@ env_vars:
   networking_state: "networking/terraform.tfstate"
   nginx_state: "nginx/terraform.tfstate"
   alb_state: "alb/terraform.tfstate"
-  mongo_state: "alb/terraform.tfstate"
+  mongo_state: "mongo/terraform.tfstate"
   openvpn_bin: "/usr/local/sbin/openvpn"
