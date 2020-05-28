@@ -30,8 +30,12 @@ echo "net.ipv4.ip_forward = 1" > /etc/sysctl.conf
 systemctl daemon-reload
 systemctl enable openvpn
 
-useradd terraform
-echo sup3rs3cr37 | passwd --stdin terraform
+useradd -m terraform
+mkdir /home/terraform/.ssh
+
+cat <<EOF >> /home/terraform/.ssh/authorized_keys
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDBsx2xhoB6sk5a2OVFwo0BmATXV5tzCF0rmLExXfCuYhX06MZVnVFBlip8YySj59N0Kt7lQ41t1wHWsj4G7ylw/EgqnUQjP0Jy4NOYhXyEVgiZ8PgyPi3OA7Z/itV8IqoqyY1aUY01SwT1+KFnEQgsnbgA6pJ42vC0zap1Fm7ZhEV902BwLQ8Vdq+X9NCuGoccBc7flOhERNQ4OEZSBtYETJuV/AeDxUUkWk+uhnaRovInURDWZapD6IQGPJPo6FuHZ3MNMkz5Ztm0aAXEpo2Z1ClfsQ60dBEMWteP2IU0GW0byQwDh/LyItZ5xYC75DkD4Ocf12J6+MKalouySBgr terraform
+EOF
 
 cat <<EOF >> /etc/sudoers.d/terraform
 terraform ALL=(ALL) NOPASSWD:ALL
