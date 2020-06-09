@@ -1,0 +1,158 @@
+- hosts: all
+  tasks:
+
+  - name: 10_speculor Terraform
+    terraform:
+      project_path: "{{ project_path_speculor }}"
+      force_init: yes
+      state: "{{ state }}"
+      variables:
+        vpc_filter: "{{ vpc_filter }}"
+        base_sg_filter: "{{ base_sg_filter }}"
+        bastion_sg_filter: "{{ bastion_sg_filter }}"
+        master_ami_filter: "{{ master_ami_filter }}"
+        master_subnet_filter: "{{ master_subnet_filter }}"
+        master_instance_type: "{{ master_instance_type }}"
+        master_key_name: "{{ master_key_name }}"
+        master_enable_monitoring: "{{ master_enable_monitoring }}"
+        master_vol_size: "{{ master_vol_size }}"
+        worker_ami_filter: "{{ worker_ami_filter }}"
+        worker_subnet_filter: "{{ worker_subnet_filter }}"
+        worker_instance_type: "{{ worker_instance_type }}"
+        worker_key_name: "{{ worker_key_name }}"
+        worker_enable_monitoring: "{{ worker_enable_monitoring }}"
+        worker_vol_size: "{{ worker_vol_size }}"
+        web_ami_filter: "{{ web_ami_filter }}"
+        web_subnet_filter: "{{ web_subnet_filter }}"
+        web_instance_type: "{{ web_instance_type }}"
+        web_key_name: "{{ web_key_name }}"
+        web_enable_monitoring: "{{ web_enable_monitoring }}"
+        web_vol_size: "{{ web_vol_size }}"
+        master_role_tag: "{{ master_role_tag }}"
+        worker_role_tag: "{{ worker_role_tag }}"
+        web_role_tag: "{{ web_role_tag }}"
+      backend_config:
+        region: "{{ region }}"
+        bucket: "{{ bucket }}"
+        dynamodb_table: "{{ dynamodb_table }}"
+        key: "{{ speculor_key }}"
+    when: skip_speculor_terraform is not defined and skip_all_terraform is not defined
+
+  - name: Speculor Controller Terraform Output
+    shell: '{{ terraform_bin }} output | grep -A 1 master | grep "172" | cut -d "\"" -f 4'
+    args:
+      chdir: "{{ project_path_speculor }}"
+    register: controller_output
+    when: skip_all_chef is not defined or cleanup_all_chef is defined
+
+  - name: Speculor Worker Terraform Output
+    shell: '{{ terraform_bin }} output | grep -A {{ speculor_num_workers }} worker | grep "172" | cut -d "\"" -f 4'
+    args:
+      chdir: "{{ project_path_speculor }}"
+    register: worker_output
+    when: skip_all_chef is not defined or cleanup_all_chef is defined
+
+  - name: Speculor Web Terraform Output
+    shell: '{{ terraform_bin }} output | grep -A {{ speculor_num_webs }} web | grep "172" | cut -d "\"" -f 4'
+    args:
+      chdir: "{{ project_path_speculor }}"
+    register: web_output
+    when: skip_all_chef is not defined or cleanup_all_chef is defined
+
+  - name: Mongo Terraform Output
+    shell: '{{ terraform_bin }} output | grep "172" | cut -d "\"" -f 4'
+    args:
+      chdir: "{{ project_path_mongo }}"
+    register: mongo_output
+    when: skip_all_chef is not defined
+
+  - name: Elasticsearch Terraform Output
+    shell: '{{ terraform_bin }} output | grep "172" | cut -d "\"" -f 4'
+    args:
+      chdir: "{{ project_path_elasticsearch }}"
+    register: elasticsearch_output
+    when: skip_all_chef is not defined
+
+  - name: Speculor Controller Chef
+    shell: |
+      echo y | knife bootstrap {{ controller_output.stdout_lines[0] }} \
+      -o winrm \
+      -U {{ speculor_user }} \
+      -P '{{ speculor_password }}' \
+      -N {{ speculor_name_prefix}}-controller-{{ controller_output.stdout_lines[0] }} \
+      -E {{ chef_environment }} \
+      -r 'role[gallery_dev_controller]' \
+      --session-timeout 60 \
+      -j '{"speculor":{"hostname":"CONTROLLER","controller":{"mongo_db_server":"{{ mongo_output.stdout_lines[0] }}:27017"},"gallery":{"es_url": "http://{{ elasticsearch_output.stdout_lines[0] }}:9200"},"config":{"controller_host": "{{ controller_output.stdout_lines[0] }}"}}}'
+    when: skip_speculor_controller_chef is not defined and skip_all_chef is not defined
+    ignore_errors: yes
+    async: 3600
+    poll: 0
+    register: chef_controller
+
+  - name: Pausing to ensure the controller finishes first
+    pause:
+      minutes: 3
+    when: skip_wait is not defined and skip_all_chef is not defined
+
+  - name: Speculor Workers Chef
+    shell: |
+      echo y | knife bootstrap {{ item }} \
+      -o winrm \
+      -U {{ speculor_user }} \
+      -P '{{ speculor_password }}' \
+      -N {{ speculor_name_prefix}}-worker-{{ item }} \
+      -E {{ chef_environment }} \
+      -r 'role[gallery_dev_worker]' \
+      --session-timeout 60 \
+      -j '{"speculor":{"hostname":"WORKER{{ item[-2:]  }}","controller":{"mongo_db_server":"{{ mongo_output.stdout_lines[0] }}:27017"},"worker":{"server_name": "{{ controller_output.stdout_lines[0] }}"}}}'
+    with_items: "{{ worker_output.stdout_lines }}"
+    when: skip_speculor_worker_chef is not defined and skip_all_chef is not defined
+    ignore_errors: yes
+    async: 3600
+    poll: 0
+    register: chef_workers
+
+  - name: Speculor Webservers Chef
+    shell: |
+      echo y | knife bootstrap {{ item }} \
+      -o winrm \
+      -U {{ speculor_user }} \
+      -P '{{ speculor_password }}' \
+      -N {{ speculor_name_prefix}}-web-{{ item }} \
+      -E {{ chef_environment }} \
+      -r 'role[gallery_dev_web]' \
+      --session-timeout 60 \
+      -j '{"speculor":{"hostname":"WEB{{ item[-2:]  }}","controller":{"mongo_db_server":"{{ mongo_output.stdout_lines[0] }}:27017"},"gallery":{"es_url": "http://{{ elasticsearch_output.stdout_lines[0] }}:9200"}}}'
+    with_items: "{{ web_output.stdout_lines }}"
+    when: skip_speculor_web_chef is not defined and skip_all_chef is not defined
+    ignore_errors: yes
+    async: 3600
+    poll: 0
+    register: chef_webs
+
+  - name: Wait for Controller job to end
+    async_status:
+      jid: '{{ chef_controller.ansible_job_id }}'
+    register: controller_job_result
+    until: controller_job_result.finished
+    when: skip_speculor_controller_chef is not defined and skip_all_chef is not defined
+    retries: 3600
+
+  - name: Wait for Worker job to end
+    async_status:
+      jid: '{{ item.ansible_job_id }}'
+    register: worker_job_result
+    until: worker_job_result.finished
+    when: skip_speculor_worker_chef is not defined and skip_all_chef is not defined
+    with_items: "{{ chef_workers.results }}"
+    retries: 3600
+
+  - name: Wait for Web job to end
+    async_status:
+      jid: '{{ item.ansible_job_id }}'
+    register: web_job_result
+    until: web_job_result.finished
+    when: skip_speculor_web_chef is not defined and skip_all_chef is not defined
+    with_items: "{{ chef_webs.results }}"
+    retries: 3600
